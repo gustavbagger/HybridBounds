@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"os"
+	"strconv"
 
 	pr "github.com/fxtlabs/primes"
 	fk "github.com/johnkerl/goffl/pkg/intfactor"
@@ -203,8 +205,30 @@ func hybridBound(n, omega int) (float64, error) {
 	return logBound, nil
 }
 
+/*
+func hybridSeveral(nMin,nMax,omegaMin,omegaMax int) {
+}
+*/
 func main() {
-	omega := 46
-	n := 15
-	fmt.Println(hybridBound(n, omega))
+	args := os.Args
+	if len(args) != 3 {
+		fmt.Println("Usage: HybridBounds <n (int)>  <omega (int)>")
+		return
+	}
+	n, err := strconv.Atoi(args[1])
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	omega, err := strconv.Atoi(args[2])
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	bound, err := hybridBound(n, omega)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(bound)
 }
