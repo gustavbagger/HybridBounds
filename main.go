@@ -190,9 +190,27 @@ func factorIntoSlice(n int) ([][]int, []int) {
 	}
 	return nSlice, nPrimes
 }
+
+// Power of 2 case, assuming n= 2^exp
+func HybridBoundTwoPow(primes []int, exp, omega int) float64 {
+	oneOnN := 1.0 / float64(int(1)<<exp)
+	upper := oneOnN * logProd(primes[1:omega+1])
+	lower := oneOnN * logProd(append(primes[0:omega], 1<<(1+exp)))
+	if upper > lower {
+		return lower
+	} else {
+		return upper
+	}
+}
+
+// Still missing implimentation when n even but not a power of 2
 func hybridBound(n, omega int) (float64, error) {
 	nSlice, nPrimes := factorIntoSlice(n)
 	primes := pr.Sieve(10000)
+
+	if nPrimes[0] == 2 {
+		return HybridBoundTwoPow(primes, nSlice[0][1], omega), nil
+	}
 	primeSets, err := makePrimeSets(primes, nPrimes, omega)
 	if err != nil {
 		return 0, err
@@ -205,10 +223,6 @@ func hybridBound(n, omega int) (float64, error) {
 	return logBound, nil
 }
 
-/*
-func hybridSeveral(nMin,nMax,omegaMin,omegaMax int) {
-}
-*/
 func main() {
 	args := os.Args
 	if len(args) != 3 {
