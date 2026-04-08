@@ -188,7 +188,7 @@ func factorIntoSlice(n int) ([][]int, []int) {
 	}
 	return nSlice, nPrimes
 }
-func primeSieve(n, omega int) (float64, error) {
+func hybridBound(n, omega int) (float64, error) {
 	nSlice, nPrimes := factorIntoSlice(n)
 	primes := pr.Sieve(10000)
 	primeSets, err := makePrimeSets(primes, nPrimes, omega)
@@ -206,5 +206,5 @@ func primeSieve(n, omega int) (float64, error) {
 func main() {
 	omega := 46
 	n := 15
-	fmt.Println(primeSieve(n, omega))
+	fmt.Println(hybridBound(n, omega))
 }
