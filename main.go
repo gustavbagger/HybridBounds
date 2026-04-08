@@ -177,15 +177,34 @@ func findWorstBound(primeSets [][]int, exps []float64, omega int) (float64, erro
 	return current, nil
 }
 
-func main() {
-	fk.Factor(10)
-
+func factorIntoSlice(n int) ([][]int, []int) {
+	nFactors := fk.Factor(int64(n))
+	var nPrimes []int
+	var nSlice [][]int
+	for i := 0; i < nFactors.NumDistinctFactors(); i++ {
+		p, m := nFactors.Get(i)
+		nSlice = append(nSlice, []int{int(p), m})
+		nPrimes = append(nPrimes, int(p))
+	}
+	return nSlice, nPrimes
+}
+func primeSieve(n, omega int) (float64, error) {
+	nSlice, nPrimes := factorIntoSlice(n)
 	primes := pr.Sieve(10000)
-	omega := 40
-	n := [][]int{{5, 1}}
-	primeSets, _ := makePrimeSets(primes, []int{5}, omega)
-	exps := partialExponents(n)
-	fmt.Println(primeSets, "   ", exps)
-	logBound, _ := findWorstBound(primeSets, exps, omega)
-	fmt.Println(math.Pow(math.E, logBound))
+	primeSets, err := makePrimeSets(primes, nPrimes, omega)
+	if err != nil {
+		return 0, err
+	}
+	exps := partialExponents(nSlice)
+	logBound, err := findWorstBound(primeSets, exps, omega)
+	if err != nil {
+		return 0, err
+	}
+	return logBound, nil
+}
+
+func main() {
+	omega := 46
+	n := 15
+	fmt.Println(primeSieve(n, omega))
 }
