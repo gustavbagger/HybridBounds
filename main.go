@@ -97,9 +97,37 @@ func makePrimeSets(primes []int, moduli []int, needed int) ([][]int, error) {
 	return out, nil
 }
 
+func partialExponents(n [][]int) []float64 {
+	out := make([]float64, len(n)+1)
+	out[0] = 1.0
+	for i := 0; i < len(n); i++ {
+		prime := float64(n[i][0])
+		exp := float64(n[i][1])
+		out[i+1] = out[i] / math.Pow(prime, exp)
+	}
+	return out
+}
+
+// NOT DONE
+func logProdPrimeSets(primeSets [][]int, spread []int, exp int) (float64, error) {
+	var out float64
+	if len(primeSets) != len(spread) {
+		return 0, errors.New("mismatched set lengths, primeSets/spread")
+	}
+	for i := range len(spread) {
+		out += logProd(primeSets[i][:spread[i]])
+	}
+
+	return float64(exp) * out, nil
+}
+
 func main() {
 	fk.Factor(10)
 	primes := pr.Sieve(10000)
-	fmt.Println(makePrimeSets(primes, []int{2, 5}, 10))
+	primeSets, _ := makePrimeSets(primes, []int{2, 5, 7}, 10)
+	fmt.Println(primeSets)
+	fmt.Println(logProdPrimeSets(primeSets, []int{1, 5, 3}, 1))
+
+	//fmt.Println(partialExponents([][]int{{2, 1}, {3, 7}, {7, 3}}))
 
 }
