@@ -1,0 +1,4 @@
+github.com/fxtlabs/primes v0.0.0-20150821004651-dad82d10a449 h1:HOYnhuVrhAVGKdg3rZapII640so7QfXQmkLkefUN/uM=
+github.com/fxtlabs/primes v0.0.0-20150821004651-dad82d10a449/go.mod h1:i+vbdOOivRRh2j+WwBkjZXloGN/+KAqfKDwNfUJeugc=
+github.com/johnkerl/goffl v0.1.0 h1:0X2o16+MHMXoVR/5116cvb6sr5j95rhJrLHHJzOGYjE=
+github.com/johnkerl/goffl v0.1.0/go.mod h1:iToUruDooX+6HK2kH5zgQ1rkXONe/NUIzfvVDy0KW8g=
