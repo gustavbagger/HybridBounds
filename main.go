@@ -65,8 +65,8 @@ func primesInHybrids(primes []int, moduli []int, needed int, cutoff int) ([]int,
 	length := len(moduli)
 primeloop:
 	for _, val := range primes {
-		if val%moduli[cutoff-1] == 1 {
-			for i := length - 1; i > cutoff-1; i-- {
+		if cutoff == 0 || val%moduli[cutoff-1] == 1 {
+			for i := length - 1; i >= cutoff; i-- {
 				if val%moduli[i] == 1 {
 					continue primeloop
 				}
@@ -78,7 +78,7 @@ primeloop:
 			break
 		}
 	}
-	if count < needed {
+	if count < needed && (cutoff != 0 || moduli[0] != 2) {
 		return nil, errors.New("Not enough primes in slice")
 	}
 	return out, nil
@@ -86,10 +86,10 @@ primeloop:
 
 func makePrimeSets(primes []int, moduli []int, needed int) ([][]int, error) {
 	length := len(moduli)
-	out := make([][]int, length)
+	out := make([][]int, length+1)
 	var err error
-	for cutoff := length; cutoff > 0; cutoff-- {
-		out[cutoff-1], err = primesInHybrids(primes, moduli, needed, cutoff)
+	for cutoff := length; cutoff >= 0; cutoff-- {
+		out[cutoff], err = primesInHybrids(primes, moduli, needed, cutoff)
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +108,6 @@ func partialExponents(n [][]int) []float64 {
 	return out
 }
 
-// NOT DONE
 func logProdPrimeSets(primeSets [][]int, spread []int, exp int) (float64, error) {
 	var out float64
 	if len(primeSets) != len(spread) {
@@ -121,13 +120,72 @@ func logProdPrimeSets(primeSets [][]int, spread []int, exp int) (float64, error)
 	return float64(exp) * out, nil
 }
 
+func findLargestBound(primeSets [][]int, spread []int, exps []float64) (float64, error) {
+	var bound float64
+	var current, try float64
+	if len(spread) != len(exps) {
+		return 0, errors.New("mismatched set lengths, exps/spread")
+	}
+	if len(spread) != len(primeSets) {
+		return 0, errors.New("mismatched set lengths, primeSets/spread")
+	}
+	for i := range len(spread) {
+		bound += logProd(primeSets[i][:spread[i]])
+		try = exps[i] * bound
+		if try > current {
+			current = try
+		}
+	}
+	return current, nil
+}
+
+func prependManyTimes(val int, slices [][]int) [][]int {
+	var out [][]int
+	valSlice := []int{val}
+	for _, slice := range slices {
+		out = append(out, append(valSlice, slice...))
+	}
+	return out
+}
+func additivePartitions(piles, total int) [][]int {
+	var out [][]int
+	if piles == 1 {
+		return [][]int{{total}}
+	}
+	for i := 1; i <= total+1-piles; i++ {
+		out = append(out, prependManyTimes(i, additivePartitions(piles-1, total-i))...)
+	}
+	return out
+}
+
+func findWorstBound(primeSets [][]int, exps []float64, omega int) (float64, error) {
+
+	partitions := additivePartitions(len(exps), omega)
+	current, err := findLargestBound(primeSets, partitions[0], exps)
+	if err != nil {
+		return 0, err
+	}
+	for _, spread := range partitions {
+		new, err := findLargestBound(primeSets, spread, exps)
+		if err != nil {
+			return 0, err
+		}
+		if new < current {
+			current = new
+		}
+	}
+	return current, nil
+}
+
 func main() {
 	fk.Factor(10)
+
 	primes := pr.Sieve(10000)
-	primeSets, _ := makePrimeSets(primes, []int{2, 5, 7}, 10)
-	fmt.Println(primeSets)
-	fmt.Println(logProdPrimeSets(primeSets, []int{1, 5, 3}, 1))
-
-	//fmt.Println(partialExponents([][]int{{2, 1}, {3, 7}, {7, 3}}))
-
+	omega := 40
+	n := [][]int{{5, 1}}
+	primeSets, _ := makePrimeSets(primes, []int{5}, omega)
+	exps := partialExponents(n)
+	fmt.Println(primeSets, "   ", exps)
+	logBound, _ := findWorstBound(primeSets, exps, omega)
+	fmt.Println(math.Pow(math.E, logBound))
 }
