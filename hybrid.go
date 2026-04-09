@@ -114,7 +114,7 @@ func HybridBoundTwoPow(primes []int, exp, omega int) float64 {
 
 func hybridBound(n, omega int) (float64, error) {
 	nSlice, nPrimes := factorIntoSlice(n)
-	primes := pr.Sieve(10000)
+	primes := pr.Sieve(1000000)
 
 	if nPrimes[0] == 2 && len(nPrimes) == 1 {
 		return HybridBoundTwoPow(primes, nSlice[0][1], omega), nil
