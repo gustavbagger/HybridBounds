@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"math"
 	"os"
 	"strconv"
+	"strings"
 
 	pr "github.com/fxtlabs/primes"
 )
@@ -135,25 +137,36 @@ func hybridBound(n, omega int) (float64, error) {
 }
 
 func main() {
-	args := os.Args
-	if len(args) != 3 {
-		fmt.Println("Usage: HybridBounds <n (int)>  <omega (int)>")
-		return
+	for {
+		fmt.Printf("n,omega = ")
+		reader := bufio.NewReader(os.Stdin)
+		// ReadString will block until the delimiter is entered
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			continue
+		}
+
+		// remove the delimeter from the string
+		input = strings.TrimSpace(input)
+		args := strings.Split(input, ",")
+		if len(args) != 2 {
+			continue
+		}
+		n, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		omega, err := strconv.Atoi(args[1])
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		bound, err := hybridBound(n, omega)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fmt.Printf("For n = %v,omega = %v: q > %.2e\n", n, omega, math.Exp(bound))
 	}
-	n, err := strconv.Atoi(args[1])
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	omega, err := strconv.Atoi(args[2])
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	bound, err := hybridBound(n, omega)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(bound)
 }

@@ -1,1 +1,1 @@
-GOOS=windows GOARCH=amd64 go build -o NimWindows.exe
+GOOS=windows GOARCH=amd64 go build -o HybridBound.exe
