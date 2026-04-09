@@ -109,7 +109,7 @@ func findWorstBound(primeSets [][]int, exps []float64, omega int) (float64, erro
 func HybridBoundTwoPow(primes []int, exp, omega int) float64 {
 	oneOnN := 1.0 / float64(int(1)<<exp)
 	upper := oneOnN * logProd(primes[1:omega+1])
-	lower := oneOnN * logProd(append(primes[0:omega], 1<<(1+exp)))
+	lower := oneOnN * (logProd(primes[0:omega]) + float64(1+exp)*math.Log(2))
 	if upper > lower {
 		return lower
 	} else {
@@ -129,11 +129,7 @@ func hybridBound(n, omega int) (float64, error) {
 		return 0, err
 	}
 	exps := partialExponents(nSlice)
-	logBound, err := findWorstBound(primeSets, exps, omega)
-	if err != nil {
-		return 0, err
-	}
-	return logBound, nil
+	return findWorstBound(primeSets, exps, omega)
 }
 
 func main() {
@@ -167,6 +163,6 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
-		fmt.Printf("For n = %v,omega = %v: q > %.2e\n", n, omega, math.Exp(bound))
+		fmt.Printf("For n = %v,omega = %v: q^%v > %.2e\n", n, omega, n, math.Pow(math.Exp(bound), float64(n)))
 	}
 }
